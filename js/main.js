@@ -75,14 +75,9 @@ const displaySearchResult = books => {
         
 
     }
-
-
     const totalFound = document.getElementById('total-books')
     totalFound.innerHTML = `<p class="text-center text-success mt-2">${books.numFound} result found.</p>`
     const allBooks = books.docs
-    
-
-    
 }
 
 
