@@ -1,84 +1,87 @@
-//  // // // error msg // // //
-document.getElementById('notFound').style.display = 'none'
-//  // // //  Search text and fetching url // // ///
 
-const searchBook = async () =>{
-    const searchField = document.getElementById('search-field')
-    const searchText = searchField.value
-
-    // clear data
-    searchField.value = ''
-
-
-    const url = `https://openlibrary.org/search.json?q=${searchText}`
-
-    // fetching url 
-
-    const res = await fetch(url)
-    const data = await res.json()
-    displaySearchResult(data)
+// function for toggole
+const toggole =(id, property) => {
+    document.getElementById(id).style.display = property;
 }
 
-//  // // // search result  // // // //
+const loadBooks = () => {
+   const searchField = document.getElementById('search-text');
+   const searchText = searchField.value;
+   console.log(searchText);
+   //Clear input field 
+   searchField.value = '';
 
-const displaySearchResult = books => {
-    const searchResult = document.getElementById('search-result-container')
+   // toggole 
+   toggole('spinner', 'block')
+   toggole('book-section', 'none')
+   toggole('results-amount', 'none')
 
-    const searchField = document.getElementById('search-field')
-    const searchText = searchField.value
-
-    console.log(books)
-    const book = books.docs
-
-    // clear data // // //
-
-    searchResult.textContent = ''
-    document.getElementById('notFound').style.display = 'none'
-
-    //  // // //  book result // // // //
-
-    if(book.length === 0){
-        document.getElementById('notFound').style.display = 'block'
-    }
-    else{
-        book.forEach(book => {
-            console.log(book)
-            const div = document.createElement('div')
-            div.classList.add('col')
-            div.innerHTML = `
-            <div  class="card h-100">
-                    <img height = "300" width = "auto" img-fluid src="https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg" alt="Girl in a jacket">
-                    <div class="card-body">
-                        <h5 class="card-title"> <span class ="text-muted"> Name :</span> ${book.title}</h5>
-                        <p class="card-text"> <u>Author Name </u>: <span class = "fw-bold"> ${book.author_name}</span></p>
-                        <p>Firs't Publish : <span class = "fw-bold"> ${book.first_publish_year}</span> </p>
-                        <p>Publisher : <span class = "fw-bold">${book.publisher}</span></p>
-                    </div>
-            </div>
-            
-            `
-            searchResult.appendChild(div)
-
-        })
-
- // // // // // //  showing total result number // // // // // //
-
-        // const resultP = document.getElementById('found')
-        // const number = books.numFound
-        // const p = document.createElement('p')
-        // p.classList.add('result-number')
-        // p.classList.add('text-center')
-        // p.classList.add('mt-4')
-        // p.innerText = `${number} result were found. Some of them given bellow...`
-
-        // resultP.appendChild(p)
-        
-
-    }
-    const totalFound = document.getElementById('total-books')
-    totalFound.innerHTML = `<p class="text-center text-success mt-2">${books.numFound} result found.</p>`
-    const allBooks = books.docs
+// calling api and load data 
+const url = `https://openlibrary.org/search.json?q=${searchText}`;
+fetch(url)
+.then(res => res.json())
+.then(data => displayBooks(data.docs, data))
 }
 
+const displayBooks = (books, data) => {
+ 
+   // removing nothing found 
+   const NothingFound = document.getElementById('nothing-found');
+   NothingFound.textContent = '';
+
+   // showing results amount
+   const resultAmount = document.getElementById('results-amount');
+
+   resultAmount.innerHTML = `<h5 class="w-50 mx-auto">About ${data.numFound} results found</h5>`
+   const booksContainer = document.getElementById('books');
 
 
+   // romoving books from container
+   booksContainer.textContent = '';
+
+   // appending books in container 
+  if (books.length > 0){
+       books.forEach(book => {
+           const div = document.createElement("div");
+           div.classList = 'col';
+           div.innerHTML = `
+           <div class="card h-100">
+                       <img class="img-size" src="https://covers.openlibrary.org/b/id/${book.cover_i ? book.cover_i: 10909258}-M.jpg" class="card-img-top" alt="...">
+                       <div class="card-body">
+                         <h6 class="card-title">${book.title}</h6>
+                         <p class="card-text">Author: ${book.author_name}</p>
+                         <p class="card-text">Published: ${book.first_publish_year}</p>
+                       </div>
+                     </div>
+           `
+           booksContainer.appendChild(div);
+          
+       })
+       
+       
+   }
+   
+   // showing nothing found
+   else if(books.length === 0){
+       const NothingFound = document.getElementById('nothing-found');
+       const div = document.createElement('div');
+       div.innerHTML =`
+       <h1>Nothing found</h1> 
+       <h4>No results containing all your search terms were found.</h4> 
+     <ul>
+       Suggestions:
+       <li>Make sure that all words are spelled correctly.</li>
+       <li>Try different keywords.</li>
+       <li>
+           Try fewer keywords.
+           </li>
+     </ul>`
+     NothingFound.appendChild(div)
+   }
+  
+
+   // toggole
+   toggole('spinner', 'none')
+   toggole('book-section', 'block')
+   toggole('results-amount', 'block')
+}
